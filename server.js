@@ -13,7 +13,7 @@ app.get('/health', (req, res) => {
   res.json({ ok: true, service: 'noah-i2v', stage: 'hello-render' });
 });
 
-// SDK check — טעינה דינמית כדי לעבוד טוב עם CommonJS
+// SDK check
 app.get('/sdk-check', async (req, res) => {
   try {
     const sdk = await import('@runwayml/sdk');
@@ -27,15 +27,31 @@ app.get('/sdk-check', async (req, res) => {
   }
 });
 
-// I2V Stub — בלי Runway (עדיין)
+// Runway ping — בדיקת מפתח API
+app.get('/runway/ping', async (req, res) => {
+  try {
+    const { default: RunwayML } = await import('@runwayml/sdk');
+    if (!process.env.RUNWAYML_API_SECRET) {
+      return res.status(500).json({ ok: false, error: 'Missing env RUNWAYML_API_SECRET' });
+    }
+    const client = new RunwayML({});
+    return res.json({
+      ok: true,
+      clientReady: !!client,
+      hasKey: true
+    });
+  } catch (e) {
+    return res.status(500).json({ ok: false, error: String(e?.message || e) });
+  }
+});
+
+// I2V Stub
 app.post('/api/i2v', (req, res) => {
   const { image, promptText = '', ratio = '1280:720', duration = 5 } = req.body || {};
 
   if (!image) return res.status(400).json({ error: 'Missing `image` (URL or data URI)' });
-
   const validRatio = /^\d+:\d+$/.test(ratio);
   if (!validRatio) return res.status(400).json({ error: 'Bad `ratio` format. Use e.g. "1920:1080"' });
-
   if (typeof duration !== 'number' || duration < 2 || duration > 10) {
     return res.status(400).json({ error: 'Bad `duration`. Use 2–10 seconds' });
   }
@@ -48,7 +64,7 @@ app.post('/api/i2v', (req, res) => {
   });
 });
 
-const port = process.env.PORT || 8080; // Render מספק PORT
+const port = process.env.PORT || 8080;
 app.listen(port, () => {
   console.log(`noah-i2v listening on :${port}`);
 });
