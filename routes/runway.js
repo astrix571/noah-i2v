@@ -31,7 +31,8 @@ router.post("/i2v/create", async (req, res) => {
       {
         headers: {
           Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "X-Runway-Version": "2024-11-06"
         }
       }
     );
