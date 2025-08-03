@@ -1,26 +1,26 @@
-// === Load dependencies ===
 const express = require("express");
-const bodyParser = require("body-parser");
+const cors = require("cors");
 const dotenv = require("dotenv");
+
+dotenv.config();
+
+const app = express();
 const runwayRoutes = require("./routes/runway");
 
-// === Init environment ===
-dotenv.config();
-const app = express();
-const PORT = process.env.PORT || 10000;
-
 // === Middleware ===
-app.use(bodyParser.json());
+app.use(cors());
+app.use(express.json());
 
 // === Routes ===
 app.use("/runway", runwayRoutes);
 
-// === Health check ===
+// === Root ===
 app.get("/", (req, res) => {
-  res.send("Noah I2V server is running 🚀");
+  res.send("🚀 Noah Engine is live");
 });
 
-// === Start server ===
+// === Server Start ===
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`noah-i2v listening on :${PORT}`);
+  console.log(`✅ Server running on port ${PORT}`);
 });
