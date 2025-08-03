@@ -1,26 +1,26 @@
-const express = require("express");
-const cors = require("cors");
-const dotenv = require("dotenv");
+const express = require('express');
+const dotenv = require('dotenv');
+const cors = require('cors');
+const runwayRoutes = require('./routes/runway');
 
 dotenv.config();
 
 const app = express();
-const runwayRoutes = require("./routes/runway");
+const PORT = process.env.PORT || 3000;
 
-// === Middleware ===
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-// === Routes ===
-app.use("/runway", runwayRoutes);
+// Routes
+app.use('/generate-video', runwayRoutes);
 
-// === Root ===
-app.get("/", (req, res) => {
-  res.send("🚀 Noah Engine is live");
+// Root route
+app.get('/', (req, res) => {
+  res.send('NoahMotion V12 is alive 🚀');
 });
 
-// === Server Start ===
-const PORT = process.env.PORT || 3000;
+// Start server
 app.listen(PORT, () => {
-  console.log(`✅ Server running on port ${PORT}`);
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
