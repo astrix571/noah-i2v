@@ -13,14 +13,14 @@ app.post("/runway/i2v/create", async (req, res) => {
       "https://api.runwayml.com/v1/ai/gen-2/text-to-video",
       {
         prompt: prompt,
-        init_image_url: image,
+        image_url: image, // ← זה היה init_image_url
         num_frames: 24,
         fps: 12,
         guidance_scale: 12
       },
       {
         headers: {
-          "Authorization": `Bearer ${RUNWAY_API_KEY}`,
+          Authorization: `Bearer ${RUNWAY_API_KEY}`,
           "Content-Type": "application/json"
         }
       }
