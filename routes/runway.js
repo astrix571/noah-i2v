@@ -2,31 +2,30 @@ const express = require("express");
 const axios = require("axios");
 const router = express.Router();
 
-// 🔁 בדיקת תקינות חיבור וסוד
+// 📡 בדיקת מפתח
 router.get("/ping", (req, res) => {
-  const key = process.env.RUNWAYML_API_SECRET;
-  const ok = !!key;
+  const ok = !!process.env.RUNWAYML_API_SECRET;
   res.json({ ok, clientReady: true, hasKey: ok });
 });
 
-// 🎬 יצירת וידאו מהתמונה והטקסט
+// 🎬 קריאה להפקת וידאו דרך Gen‑2 / Gen‑3 API
 router.post("/i2v/create", async (req, res) => {
   const { prompt, image } = req.body;
   const apiKey = process.env.RUNWAYML_API_SECRET;
-
   if (!prompt || !image || !apiKey) {
     return res.status(400).json({ error: "Missing prompt, image, or API key" });
   }
 
   try {
     const response = await axios.post(
-      "https://api.runwayml.com/v1/ai/gen-2/text-to-video",
+      "https://api.runwayml.com/v1/image_to_video",
       {
-        prompt,
-        init_image_url: image,
-        num_frames: 24,
+        promptText: prompt,
+        promptImage: [{ uri: image, position: "first" }],
         fps: 12,
-        guidance_scale: 12
+        numFrames: 24,
+        guidanceScale: 12,
+        ratio: "1280:768"
       },
       {
         headers: {
@@ -36,11 +35,9 @@ router.post("/i2v/create", async (req, res) => {
         }
       }
     );
-
-    const taskId = response.data.id;
-    res.json({ taskId });
+    res.json({ taskId: response.data.id });
   } catch (err) {
-    console.error("❌ Runway create error:", err.response?.data || err.message);
+    console.error("❌ Runway error:", err.response?.data || err.message);
     res.status(500).json({
       error: "Runway create failed",
       details: err.response?.data || err.message
