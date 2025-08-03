@@ -8,10 +8,26 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
+// Health
 app.get('/health', (req, res) => {
   res.json({ ok: true, service: 'noah-i2v', stage: 'hello-render' });
 });
 
+// SDK check — טעינה דינמית כדי לעבוד טוב עם CommonJS
+app.get('/sdk-check', async (req, res) => {
+  try {
+    const sdk = await import('@runwayml/sdk');
+    res.json({
+      ok: true,
+      loaded: true,
+      exportedKeys: Object.keys(sdk || {}).slice(0, 10)
+    });
+  } catch (e) {
+    res.status(500).json({ ok: false, loaded: false, error: String(e?.message || e) });
+  }
+});
+
+// I2V Stub — בלי Runway (עדיין)
 app.post('/api/i2v', (req, res) => {
   const { image, promptText = '', ratio = '1280:720', duration = 5 } = req.body || {};
 
@@ -32,7 +48,7 @@ app.post('/api/i2v', (req, res) => {
   });
 });
 
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 8080; // Render מספק PORT
 app.listen(port, () => {
   console.log(`noah-i2v listening on :${port}`);
 });
